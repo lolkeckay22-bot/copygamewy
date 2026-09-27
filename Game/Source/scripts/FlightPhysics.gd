@@ -12,7 +12,7 @@ var fuel=1.0
 var mach=0.0
 var rho=1.225
 var q=0.0
-func _get(d, key, fallback):
+func _param(d, key, fallback):
 	if d.has(key):
 		return d[key]
 	return fallback
@@ -36,18 +36,18 @@ func step(body, state, control, dt):
 	aoa = atan2(-local.y, fwd_speed)
 	sideslip = atan2(local.x, max(5.0, -local.z))
 	# --- Per-aircraft aero config (all optional, backward compatible) ---
-	var cl0 = float(_get(d, "cl", 0.2))
-	var slope = float(_get(d, "lift_slope", 4.2))
-	var crit = deg2rad(float(_get(d, "critical_aoa_deg", 17.0)))
-	var stall_w = float(_get(d, "stall_width", 0.28))
-	var post_lift = float(_get(d, "post_stall_lift", 0.42))
-	var flap_lift = _get(d, "flap_lift", [0, 0.15, 0.35])
-	var flap_drag = _get(d, "flap_drag", [0, 0.014, 0.038])
-	var cd0 = float(_get(d, "cd", 0.03))
-	var induced_k = float(_get(d, "induced_k", 0.065))
-	var max_g = float(_get(d, "max_g", 7.0))
-	var stall_speed = float(_get(d, "stall_speed", 60.0))
-	var max_speed = float(_get(d, "max_speed", 300.0))
+	var cl0 = float(_param(d, "cl", 0.2))
+	var slope = float(_param(d, "lift_slope", 4.2))
+	var crit = deg2rad(float(_param(d, "critical_aoa_deg", 17.0)))
+	var stall_w = float(_param(d, "stall_width", 0.28))
+	var post_lift = float(_param(d, "post_stall_lift", 0.42))
+	var flap_lift = _param(d, "flap_lift", [0, 0.15, 0.35])
+	var flap_drag = _param(d, "flap_drag", [0, 0.014, 0.038])
+	var cd0 = float(_param(d, "cd", 0.03))
+	var induced_k = float(_param(d, "induced_k", 0.065))
+	var max_g = float(_param(d, "max_g", 7.0))
+	var stall_speed = float(_param(d, "stall_speed", 60.0))
+	var max_speed = float(_param(d, "max_speed", 300.0))
 	var flaps = int(body.flight_controls.flaps)
 	if flaps < 0 or flaps > 2:
 		flaps = 0
@@ -77,7 +77,7 @@ func step(body, state, control, dt):
 		lift_dir = basis.y
 	else:
 		lift_dir = lift_dir.normalized()
-	var lift_mag = q * float(_get(d, "area", 30.0)) * cl * body.damage.lift_factor()
+	var lift_mag = q * float(_param(d, "area", 30.0)) * cl * body.damage.lift_factor()
 	lift_mag = clamp(lift_mag, -d.mass * 9.81 * 3.0, d.mass * 9.81 * max_g * 1.15)
 	# --- CD(AoA, Mach): parasite + flap + gear + induced + separation + wave + airbrake ---
 	var cd = cd0 + flap_drag[flaps]
@@ -91,18 +91,18 @@ func step(body, state, control, dt):
 	cd += wave_amp * exp(-pow((mach - 1.0) / 0.23, 2))
 	if body.airbrake:
 		cd += 0.045
-	var drag_mag = q * float(_get(d, "area", 30.0)) * cd
+	var drag_mag = q * float(_param(d, "area", 30.0)) * cd
 	if speed > max_speed:
 		drag_mag += (speed - max_speed) * d.mass * 0.6
 	# --- Thrust along nose, altitude lapse, afterburner for Su-27 ---
 	var ab = 1.0
 	if d.id == "su27" and body.throttle > 0.95:
 		ab = 1.12
-	var thrust_mag = float(_get(d, "thrust", 20000.0)) * body.throttle * ab * body.damage.zones.engine * sqrt(rho / 1.225)
+	var thrust_mag = float(_param(d, "thrust", 20000.0)) * body.throttle * ab * body.damage.zones.engine * sqrt(rho / 1.225)
 	var thrust = -basis.z * thrust_mag
 	# --- Side force: weathervane stability, damped at very high AoA ---
 	var side_k = 0.8 * exp(-max(0.0, abs_aoa - crit) * 1.2)
-	var side_force = -basis.x * clamp(q * float(_get(d, "area", 30.0)) * sideslip * side_k, -d.mass * 20.0, d.mass * 20.0)
+	var side_force = -basis.x * clamp(q * float(_param(d, "area", 30.0)) * sideslip * side_k, -d.mass * 20.0, d.mass * 20.0)
 	var force = thrust + lift_dir * lift_mag - v_norm * drag_mag + side_force
 	var mass_eff = d.mass * (0.9 + 0.1 * fuel)
 	var acceleration = force / mass_eff + Vector3(0, -9.81, 0)
@@ -117,11 +117,11 @@ func step(body, state, control, dt):
 	if cobra and abs_aoa > crit and body.throttle > 0.7 and speed > 55.0 and speed < 320.0:
 		authority = max(authority, 0.55)
 	elif abs_aoa > crit + 0.35:
-		authority = max(authority, float(_get(d, "post_stall_control", 0.28)))
+		authority = max(authority, float(_param(d, "post_stall_control", 0.28)))
 	var g_rate = max_g * 9.81 / max(speed, 20.0)
-	var pitch_rate = float(_get(d, "pitch_rate", 0.8))
-	var roll_rate = float(_get(d, "roll_rate", 1.4))
-	var yaw_rate = float(_get(d, "yaw_rate", 0.4))
+	var pitch_rate = float(_param(d, "pitch_rate", 0.8))
+	var roll_rate = float(_param(d, "roll_rate", 1.4))
+	var yaw_rate = float(_param(d, "yaw_rate", 0.4))
 	var rates = Vector3(control.x * pitch_rate, control.y * pitch_rate, control.z * roll_rate)
 	# Structural G limiter (soft: allow brief post-stall overshoot for Herbst/cobra entry).
 	var yaw_limit = min(yaw_rate, 18.0 / max(speed, 20.0))
