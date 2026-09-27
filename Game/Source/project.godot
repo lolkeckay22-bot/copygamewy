@@ -1,0 +1,22 @@
+config_version=4
+[application]
+config/name="SKY FRONT — Air Combat"
+run/main_scene="res://Main.tscn"
+config/description="Original lightweight air combat prototype"
+config/icon="res://icon.png"
+config/windows_native_icon="res://icon.ico"
+[display]
+window/size/width=1280
+window/size/height=720
+window/size/resizable=true
+window/stretch/mode="disabled"
+window/stretch/aspect="expand"
+[rendering]
+quality/driver/driver_name="GLES2"
+quality/shadows/filter_mode=0
+quality/msaa=0
+environment/default_clear_color=Color(0.35,0.52,0.65,1)
+[physics]
+common/physics_fps=60
+[gui]
+theme/use_hidpi=true

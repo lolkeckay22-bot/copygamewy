@@ -1,0 +1,68 @@
+name: Export Windows (Godot 3.x)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Game/Source/**"
+      - ".github/workflows/export-windows.yml"
+  workflow_dispatch:
+
+jobs:
+  export-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (unzip)
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Install Godot 3.5.3 + export templates
+        run: |
+          set -e
+          GODOT_VERSION="3.5.3"
+          GODOT_STATUS="stable"
+          mkdir -p "$HOME/godot" "$HOME/.local/share/godot/templates/3.5.3.stable"
+          cd "$HOME/godot"
+          curl -fL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_STATUS}/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux_headless.64.zip"
+          unzip -o godot.zip
+          chmod +x Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux_headless.64
+          curl -fL -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_STATUS}/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_export_templates.tpz"
+          unzip -o templates.tpz -d "$HOME/.local/share/godot/templates/3.5.3.stable"
+          ls -R "$HOME/.local/share/godot/templates/3.5.3.stable" | head -30
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+
+      - name: Verify project layout
+        run: |
+          ls -la Game/Source
+          test -f Game/Source/project.godot
+          test -f Game/Source/export_presets.cfg
+          test -f Game/Source/icon.png
+          test -f Game/Source/icon.ico
+
+      - name: Headless export (Windows Desktop)
+        run: |
+          set -e
+          BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
+          "$BIN" --version
+          mkdir -p Game
+          "$BIN" --headless --path Game/Source --export "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe"
+
+      - name: Verify export
+        run: |
+          set -e
+          ls -lh Game/
+          test -f Game/Skyfront.exe
+          test -s Game/Skyfront.exe
+          file Game/Skyfront.exe || true
+          ls -lh Game/Skyfront.* || true
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Skyfront-windows
+          path: |
+            Game/Skyfront.exe
+            Game/Skyfront.pck
+          if-no-files-found: error

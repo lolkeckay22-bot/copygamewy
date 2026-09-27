@@ -1,0 +1,9 @@
+Su-27 and missiles, original editable files:
+https://github.com/yanes19/SU-27SK/tree/master/Models
+https://github.com/yanes19/SU-27SK/tree/master/Models/Stores/Missiles/R-73
+https://github.com/yanes19/SU-27SK/tree/master/Models/Stores/Missiles/R-27R
+https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/pine_tree_01/pine_tree_01_bark_diff_4k.jpg
+https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/pine_tree_01/pine_tree_01_twig_diff_4k.jpg
+https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/pine_tree_01/pine_tree_01_twig_alpha_4k.jpg
+https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/forest_floor/forest_floor_diff_4k.jpg
+https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/forest_floor/forest_floor_nor_gl_4k.jpg

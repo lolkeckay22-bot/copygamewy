@@ -1,0 +1,55 @@
+SKY FRONT 0.6 — MAP AND PERFORMANCE FIX
+Windows x64 Release template + packed game data, Godot 3.6 GLES2.
+
+112/112 automated assertions passed against final Game.pck:
+Performance 8, comfort 18, Su-27 landing 13, biplane landing 12,
+flight regression 18, expansion 22, gameplay 21.
+No GDScript parse/runtime errors in the seven final test logs.
+
+CONFIRMED MAP DEFECT
+Original generated terrain normals pointed down (sample Y=-0.99967).
+The ground used back-face culling, making its upper surface invisible.
+Reversed triangle winding; all generated normals now point up.
+This verifies mesh orientation, not rendered Windows screenshots.
+Extended camera far plane to 18 km to prevent LOW clipping the ground at 6 km.
+Scenery still uses independent distance/LOD limits.
+
+PERFORMANCE CHANGES AND MEASUREMENTS
+Terrain indexed: 135000 -> 90000 vertices; original triangle count retained.
+Projectile broad phase conservatively rejects distant candidates before the
+same swept relative ellipsoid collision. Cached per-target transforms/radii.
+Synthetic comparison on this host, same 512 distant projectiles x 100 steps:
+old 1113523 microseconds; optimized 815783 microseconds (~26.7% less time).
+This workload is a CPU microbenchmark, NOT an overall game FPS benchmark.
+LOW effect budget 256 vs 1400; behind-camera/distant effect culling.
+HUD repaint 30 Hz; aircraft visual LOD approximately 7 Hz.
+LOW render scale .75 reduces 3D pixels by 43.75%, with a sharp full-size HUD.
+Unused LOW shadow atlas disabled. Same 12 aircraft and 12 ground units,
+physics tick, weapons, damage, missiles, flares, smoke and airfield mechanics.
+
+GRAPHICS AND PERFORMANCE LIMITATIONS
+The HIGH terrain uses photo-derived CC0 textures and a new layered shader.
+The external glTF barrier and textures import successfully. These facts do
+NOT establish that the Windows GLES2 driver renders the scene correctly.
+The dummy renderer emits NULL RID/mesh teardown errors; logs retain them.
+No actual Windows GUI run, rendered screenshot, shader/GPU visual check,
+mouse-feel check or audio playback validation has been completed here.
+A previous Wine/Xvfb run was blocked by local-socket restrictions and
+its escalation request was rejected by automatic approval review.
+No attempt was made to bypass that restriction. The Windows EXE is exported,
+but the original fully Windows-runtime-tested release requirement remains
+outstanding. This archive is still an experimental Windows build.
+No physical A8-4500M/HD7640G/HD8570M test: 720p LOW 60 FPS is a target only.
+HIGH full-detail barriers are limited to 180 m; LOW uses inexpensive proxies.
+
+SIMULATION LIMITATIONS
+Runway support and wheel friction are simplified analytic contact constraints,
+not a multi-wheel suspension solver. Airfield buildings are scenery and do not
+have detailed collision shapes. AI has no full air-traffic-control queue.
+Landing thresholds are game parameters, not real aircraft operating limits.
+
+
+Version 0.5 flap deployment affects forces but is not externally animated.
+The automatic flap protection is a gameplay simplification.
+RMB zoom is fixed; the twenty keyboard bindings are configurable.
+User-configured keyboard conflicts are not automatically resolved.
