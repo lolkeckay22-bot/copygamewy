@@ -48,18 +48,16 @@ jobs:
           test -f Game/Source/icon.ico
 
       - name: Headless export (Windows Desktop)
+        timeout-minutes: 20
         run: |
           BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
           "$BIN" --version || echo "version exit=$?"
           mkdir -p Game || echo "mkdir exit=$?"
-          echo "=== project load test ==="
-          "$BIN" --headless --path Game/Source --quit > import.log 2>&1 || echo "quit exit=$?"
-          head -60 import.log || true
-          echo "=== export ==="
-          "$BIN" --headless --path Game/Source --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" > export.log 2>&1 || echo "export exit=$?"
-          head -100 export.log || true
-          echo "=== tail ==="
-          tail -40 export.log || true
+          echo "=== import (max 4 min) ==="
+          timeout 240 "$BIN" --headless --path Game/Source --editor --quit || echo "import exit=$?"
+          echo "=== export (max 12 min) ==="
+          timeout 720 "$BIN" --headless --path Game/Source --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" || echo "export exit=$?"
+          echo "=== result ==="
           ls -lh Game/ || true
 
       - name: Verify export
