@@ -47,13 +47,24 @@ jobs:
           test -f Game/Source/icon.png
           test -f Game/Source/icon.ico
 
+      - name: Import resources (headless editor)
+        timeout-minutes: 12
+        run: |
+          BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
+          cd Game/Source
+          echo "=== importing (editor runs up to 10 min, timeout kill is expected) ==="
+          timeout 600 "$BIN" --headless --editor || echo "import exit=$?"
+          echo "=== imported cache ==="
+          du -sh .import 2>/dev/null || echo "no .import dir"
+          ls .import 2>/dev/null | head -20 || true
+
       - name: Headless export (Windows Desktop)
         timeout-minutes: 20
         run: |
           BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
           cd Game/Source
-          echo "=== export (max 15 min) ==="
-          timeout 900 "$BIN" --headless --verbose --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" || echo "export exit=$?"
+          echo "=== export (max 18 min) ==="
+          timeout 1080 "$BIN" --headless --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" || echo "export exit=$?"
           echo "=== result ==="
           ls -lh "$GITHUB_WORKSPACE/Game/" || true
 
