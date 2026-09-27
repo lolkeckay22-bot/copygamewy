@@ -51,14 +51,11 @@ jobs:
         timeout-minutes: 20
         run: |
           BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
-          "$BIN" --version || echo "version exit=$?"
-          mkdir -p Game || echo "mkdir exit=$?"
-          echo "=== import (max 4 min) ==="
-          timeout 240 "$BIN" --headless --path Game/Source --editor --quit || echo "import exit=$?"
-          echo "=== export (max 12 min) ==="
-          timeout 720 "$BIN" --headless --path Game/Source --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" || echo "export exit=$?"
+          cd Game/Source
+          echo "=== export (max 15 min) ==="
+          timeout 900 "$BIN" --headless --verbose --export-release "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe" || echo "export exit=$?"
           echo "=== result ==="
-          ls -lh Game/ || true
+          ls -lh "$GITHUB_WORKSPACE/Game/" || true
 
       - name: Verify export
         run: |
