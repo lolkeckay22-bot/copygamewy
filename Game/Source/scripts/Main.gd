@@ -49,7 +49,7 @@ func _ready():
 	environment.background_mode=Environment.BG_SKY
 	var sky=ProceduralSky.new();sky.sky_top_color=Color(.16,.32,.48);sky.sky_horizon_color=Color(.66,.75,.76);sky.ground_horizon_color=Color(.66,.75,.76);sky.ground_bottom_color=Color(.28,.32,.26);sky.sun_latitude=36;sky.sun_longitude=-35
 	environment.background_sky=sky;environment.ambient_light_color=Color(.72,.81,.85);environment.ambient_light_energy=.65
-	environment.fog_enabled=true;environment.fog_color=Color(.6,.7,.73);environment.fog_depth_begin=3500;environment.fog_depth_end=12000
+	environment.fog_enabled=true;environment.fog_color=Color(.6,.7,.73);environment.fog_depth_begin=6500;environment.fog_depth_end=22000
 	env.environment=environment;world.add_child(env)
 	sun=DirectionalLight.new();sun.rotation_degrees=Vector3(-38,-35,0);sun.light_color=Color(1,.91,.78);sun.light_energy=1.05;world.add_child(sun)
 	sun.directional_shadow_max_distance=130
@@ -293,7 +293,7 @@ func _process(dt):
 		player.manual_roll=Input.get_action_strength("roll_right")-Input.get_action_strength("roll_left")
 		player.manual_yaw=Input.get_action_strength("rudder_left")-Input.get_action_strength("rudder_right")
 		player.shoot=Input.is_action_pressed("fire") or Input.is_mouse_button_pressed(BUTTON_LEFT)
-		if mode=="battle" and Vector2(player.translation.x,player.translation.z).length()>7100:
+		if mode=="battle" and Vector2(player.translation.x,player.translation.z).length()>11200:
 			var home=(Vector3(0,max(player.translation.y,1100),0)-player.translation).normalized()
 			player.direction=home
 			controller.yaw=atan2(-home.x,-home.z)
