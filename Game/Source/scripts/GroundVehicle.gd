@@ -3,7 +3,7 @@ var game
 var team=1
 var player=false
 var dead=false
-var data={"span":3.8,"length":7.2,"bullet_speed":780.0,"damage":13.0,"hp":180.0,"name":"GROUND / SPAA"}
+var data={"span":3.8,"length":7.2,"bullet_speed":780.0,"damage":13.0,"hp":180.0,"name":"НАЗЕМНАЯ / ЗСУ"}
 var linear_velocity=Vector3.ZERO
 var hp=180.0
 var turret
@@ -19,7 +19,7 @@ var is_tank=false
 var phase=0.0
 func build(owner,faction,tank):
 	game=owner;team=faction;is_tank=tank
-	hp=300 if tank else 180;data.hp=hp;data.name="ARMORED TANK" if tank else "MOBILE SPAA"
+	hp=300 if tank else 180;data.hp=hp;data.name="ТАНК" if tank else "МОБИЛЬНАЯ ЗСУ"
 	body_low=make_body(false);add_child(body_low)
 	body_high=make_body(true);add_child(body_high)
 	turret=Spatial.new();turret.translation.y=1.4;add_child(turret)
