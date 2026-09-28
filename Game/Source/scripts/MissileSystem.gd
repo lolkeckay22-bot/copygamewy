@@ -23,17 +23,20 @@ func clear():
 		f.life=0
 		f.owner=null
 func valid_target(a,t,kind):
-	if t==null or not is_instance_valid(t) or t.dead or t.team==a.team:return false
-	var offset=t.translation-a.translation
+	if t==null or not is_instance_valid(t) or t.dead:return false
+	if t.team==a.team and a.game.mode!="freeflight":return false
+	var target_pos=t.aim_point() if t.has_method("aim_point") else t.translation
+	var offset=target_pos-a.translation
 	return offset.length()<specs[kind].range and (-a.global_transform.basis.z).dot(offset.normalized())>cos(deg2rad(40 if specs[kind].ir else 55))
 func launch(a,t,kind):
-	if not valid_target(a,t,kind):return false
+	if t!=null and not valid_target(a,t,kind):return false
+	if t==null and a.game.mode!="freeflight":return false
 	for m in slots:
 		if m.active:continue
 		m.active=true;m.owner=a;m.target=t;m.type=kind;m.age=0;m.lost=0;m.decoy=-1;m.trail=0
 		m.p=a.translation+a.global_transform.basis.x*(2 if a.weapons.missile_count%2==0 else -2)-a.global_transform.basis.y*1.3
 		m.v=a.linear_velocity-a.global_transform.basis.z*45
-		m.node.mesh=load("res://assets/models/"+specs[kind].mesh+".res");m.node.translation=m.p;m.node.show()
+		m.node.mesh=load("res://assets/models/"+specs[kind].mesh+".res");m.node.translation=m.p;m.node.scale=Vector3.ONE*1.6;m.node.show()
 		var vdir=m.v.normalized()
 		if abs(vdir.y)<0.995:
 			m.node.look_at(m.p+vdir,Vector3.UP)
@@ -72,10 +75,11 @@ func _physics_process(dt):
 			m.target=null
 			m.node.hide()
 			continue
-		var target_alive=is_instance_valid(m.target) and not m.target.dead
+		var target_alive=m.target!=null and is_instance_valid(m.target) and not m.target.dead
 		var aim=m.p+m.v
 		if target_alive:
-			aim=m.target.translation+m.target.linear_velocity*clamp(m.p.distance_to(m.target.translation)/max(100,m.v.length()),0,2.2)*.7
+			var target_pos=m.target.aim_point() if m.target.has_method("aim_point") else m.target.translation
+			aim=target_pos+m.target.linear_velocity*clamp(m.p.distance_to(target_pos)/max(100,m.v.length()),0,2.2)*.7
 			if not spec.ir and (m.owner.dead or not valid_target(m.owner,m.target,m.type)):m.lost+=dt
 			else:m.lost=max(0,m.lost-dt)
 			if spec.ir and m.decoy<0 and m.age>.3:
@@ -101,13 +105,16 @@ func _physics_process(dt):
 		if abs(vdir.y)<.995:m.node.look_at(m.p+vdir,Vector3.UP)
 		m.trail-=dt
 		if m.trail<=0:
-			m.trail=[.08,.04,.02][game.graphics.effects]
-			game.effects.emit(m.p-m.v.normalized()*2,Vector3.UP,Color(.84,.87,.89),.45,2.4)
+			m.trail=[.05,.03,.02][game.graphics.effects]
+			game.effects.emit(m.p-m.v.normalized()*2,Vector3.UP*.6,Color(.88,.9,.92),1.25,5.0)
 			if m.age<4:game.effects.emit(m.p-m.v.normalized()*1.8,Vector3.ZERO,Color(1,.55,.15),.4,.08,true)
+		if game.service_bases.hit_segment(old,m.p,m.owner,220):
+			impacts+=1;explode(m);continue
 		if target_alive and m.decoy<0:
-			var seg=m.p-old;var t=clamp((m.target.translation-old).dot(seg)/max(seg.length_squared(),.001),0,1)
-			if (old+seg*t).distance_to(m.target.translation)<7:
-				m.target.take_hit(m.target.translation,220,m.owner);impacts+=1;explode(m);continue
+			var target_pos=m.target.aim_point() if m.target.has_method("aim_point") else m.target.translation
+			var seg=m.p-old;var t=clamp((target_pos-old).dot(seg)/max(seg.length_squared(),.001),0,1)
+			if (old+seg*t).distance_to(target_pos)<(m.target.hit_radius if m.target.has_method("aim_point") else 7.0):
+				m.target.take_hit(target_pos,220,m.owner);impacts+=1;explode(m);continue
 		if m.age>spec.life:explode(m)
 		elif m.p.y<500.0:
 			if m.p.y<game.terrain.height_at(m.p.x,m.p.z):explode(m)
