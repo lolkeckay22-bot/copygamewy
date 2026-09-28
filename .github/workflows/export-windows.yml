@@ -196,8 +196,9 @@ jobs:
           export GODOT_SILENCE_ROOT_WARNING=1
           timeout 120 "$BIN" --headless --maneuver-test --video-driver Dummy --audio-driver Dummy \
             > "$RUNNER_TEMP/maneuver.log" 2>&1 || { tail -80 "$RUNNER_TEMP/maneuver.log"; exit 1; }
-          grep 'MANEUVER ' "$RUNNER_TEMP/maneuver.log"
+          grep -E 'MANEUVER |SPEED ' "$RUNNER_TEMP/maneuver.log"
           grep -q 'MANEUVER PASS' "$RUNNER_TEMP/maneuver.log"
+          grep -q 'SPEED PASS' "$RUNNER_TEMP/maneuver.log"
 
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
