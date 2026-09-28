@@ -5,6 +5,10 @@ var colors = []
 var normal_color = Color(0.40,0.51,0.57)
 var gear_visual
 var gear_state=false
+var gear_progress=0.0
+var gear_pivots=[]
+var flap_pivots=[]
+var flap_position=0.0
 var hangar_gear=false
 var high_model
 var stores=[]
@@ -66,6 +70,16 @@ func finish_mesh():
 	var mi=MeshInstance.new();mi.mesh=st.commit()
 	vertices.clear();colors.clear()
 	return mi
+func add_gear(p,side,col,dark):
+	var pivot=Spatial.new();pivot.translation=p;add_child(pivot)
+	box(Vector3(0,-.62,0),Vector3(.16,1.3,.16),col.lightened(.12))
+	box(Vector3(0,-1.24,.12),Vector3(.48,.64,.78),dark)
+	var mesh=finish_mesh();pivot.add_child(mesh)
+	gear_pivots.append({"pivot":pivot,"side":side})
+func add_flap(side,col):
+	var pivot=Spatial.new();pivot.translation=Vector3(0,.14,2.85);add_child(pivot)
+	foil([Vector3(side*2.55,0,0),Vector3(side*6.83,0,.13),Vector3(side*6.65,0,.91),Vector3(side*2.35,0,.42)],.06,col.darkened(.20))
+	pivot.add_child(finish_mesh());flap_pivots.append(pivot)
 func build(kind,team=0,gear=false):
 	kind_id=kind
 	var col=Color(0.48,0.59,0.65) if team==0 else Color(0.57,0.51,0.43)
@@ -82,7 +96,7 @@ func build(kind,team=0,gear=false):
 			fuselage([[9.055,0.46,0.46],[9.06,0.0,0.0]],x,-0.48,Color(0.055,0.065,0.07),16)
 			box(Vector3(x,-0.4,-3.6),Vector3(1.2,1.0,0.12),dark)
 			foil([Vector3(side*.7,0.12,-5.8),Vector3(side*2.7,0.07,-1.0),Vector3(side*7.35,0.06,2.6),Vector3(side*7.0,0.06,4.2),Vector3(side*2.0,0.12,3.6)],0.17,col)
-			foil([Vector3(side*2.5,0.17,1.15),Vector3(side*6.9,0.17,3.0),Vector3(side*6.7,0.17,3.65),Vector3(side*2.3,0.17,3.2)],0.025,col.darkened(.16))
+			# A separate trailing-edge surface rotates with the physical flap state.
 			foil([Vector3(side*1.0,0.15,5.3),Vector3(side*4.4,0.15,7.0),Vector3(side*4.6,0.15,8.6),Vector3(side*1.1,0.15,8.1)],0.12,col)
 			box(Vector3(side*7.24,0.07,3.3),Vector3(0.16,0.18,2.25),dark)
 			fin(side*1.6,col)
@@ -133,6 +147,10 @@ func build(kind,team=0,gear=false):
 	simple=finish_mesh();add_child(simple);simple.hide()
 	if kind=="su27":
 		high_model=MeshInstance.new();high_model.mesh=load("res://assets/models/su27"+("_gear" if gear else "")+".res");add_child(high_model);high_model.hide()
+		if not gear:
+			for side in [-1,1]:add_flap(side,col)
+			add_gear(Vector3(0,-.55,-5.5),0,col,dark)
+			for side in [-1,1]:add_gear(Vector3(side*1.9,-.55,1.2),side,col,dark)
 		for i in range(6):
 			var missile=MeshInstance.new();var type="R-73" if i<4 else "R-27R"
 			missile.mesh=load("res://assets/models/"+("r73" if i<4 else "r27r")+".res")
@@ -142,11 +160,6 @@ func build(kind,team=0,gear=false):
 		high_model=MeshInstance.new();high_model.mesh=detailed.mesh.duplicate(true)
 		var material=high_model.mesh.surface_get_material(0).duplicate();material.albedo_texture=load("res://assets/textures/fabric.png");material.uv1_triplanar=true;material.uv1_scale=Vector3.ONE*3;material.roughness=.8
 		high_model.mesh.surface_set_material(0,material);add_child(high_model);high_model.hide()
-	if kind=="su27" and not gear:
-		for p in [Vector3(0,-1.35,-5.5),Vector3(-1.9,-1.35,1.2),Vector3(1.9,-1.35,1.2)]:
-			box(p,Vector3(.12,1.4,.12),Color(.5,.52,.54))
-			box(p+Vector3(0,-.65,0),Vector3(.4,.7,.75),Color(.07,.08,.08))
-		gear_visual=finish_mesh();add_child(gear_visual);gear_visual.hide()
 	hangar_gear=gear
 	build_vapor()
 func build_vapor():
@@ -210,10 +223,10 @@ func update_vapor(mach,aoa,g_force,speed):
 	set_vapor(clamp(cone*0.95+wing*0.55,0.0,1.0))
 func set_gear(down):
 	if kind_id!="su27" or hangar_gear:return
-	if down!=gear_state:
-		gear_state=down
-		high_model.mesh=load("res://assets/models/su27"+("_gear" if down else "")+".res")
-	if gear_visual:gear_visual.visible=down and not high_model.visible and not simple.visible
+	gear_state=down
+
+func set_flaps(position):
+	flap_position=clamp(int(position),0,2)
 
 func set_lod(distance,max_distance):
 	visible=distance<max_distance
@@ -234,3 +247,12 @@ func update_stores(stock):
 
 func _process(dt):
 	if propeller!=null and is_visible_in_tree():propeller.rotation.z+=dt*spin_speed
+	if kind_id=="su27" and not hangar_gear:
+		gear_progress=move_toward(gear_progress,1.0 if gear_state else 0.0,dt*.55)
+		for part in gear_pivots:
+			var hinge=part.pivot
+			hinge.visible=gear_progress>.015
+			hinge.rotation.x=-(1.0-gear_progress)*1.38 if part.side==0 else 0.0
+			hinge.rotation.z=-part.side*(1.0-gear_progress)*1.35
+		for flap in flap_pivots:
+			flap.rotation.x=move_toward(flap.rotation.x,[0.0,.22,.48][flap_position],dt*.85)
