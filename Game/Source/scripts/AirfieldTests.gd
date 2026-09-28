@@ -32,9 +32,11 @@ func _process(_dt):
 	check(game.missiles.slots[0].active and game.missiles.slots[0].node.visible,"launched missile has visible geometry")
 	game.missiles._physics_process(.05)
 	check(game.effects.active.size()>0,"launched missile emits visible smoke particles")
-	var hangar_pos=hangar.aim_point()
-	check(game.service_bases.hit_segment(hangar_pos+Vector3(0,0,50),hangar_pos-Vector3(0,0,50),a,220),"missile path damages a hangar")
-	check(hangar.dead,"destroyed hangar remains a visible ruin")
+	for step in range(360):
+		if hangar.dead:break
+		game.missiles._physics_process(1.0/60.0)
+	check(hangar.dead,"guided missile flies to and destroys the hangar")
+	check(game.missiles.impacts>0,"actual missile impact is counted")
 	var runway_pos=runway.aim_point()
 	game.service_bases.hit_segment(runway_pos+Vector3(0,0,90),runway_pos-Vector3(0,0,90),a,220)
 	game.service_bases.hit_segment(runway_pos+Vector3(0,0,90),runway_pos-Vector3(0,0,90),a,220)
