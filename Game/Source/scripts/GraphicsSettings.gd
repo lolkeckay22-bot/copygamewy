@@ -59,7 +59,7 @@ func apply(game):
 	OS.window_size=resolution
 	game.world_view.size=resolution*render_scale
 	game.world_view.msaa=aa
-	game.camera.far=18000
+	game.camera.far=25000
 	game.world_view.shadow_atlas_size=0 if not shadows else 1024
 	game.sun.shadow_enabled=shadows
 	game.terrain.buildings.visible_instance_count=[35,65,100][texture_quality]
