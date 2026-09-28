@@ -21,8 +21,9 @@ func select_target(ground=false):
 	var a=game.player
 	if a==null:return
 	var candidates=[]
-	for t in (game.ground_units if ground else game.aircraft):
-		if valid(t) and t.team!=a.team:candidates.append(t)
+	var roster=game.ground_units+game.service_bases.targets if ground else game.aircraft
+	for t in roster:
+		if valid(t) and (t.team!=a.team or game.mode=="freeflight" and ground):candidates.append(t)
 	if candidates.empty():
 		selected_target=null
 		game.notification="NO GROUND TARGETS" if ground else "NO AIR TARGETS"
@@ -80,7 +81,7 @@ func update(dt):
 		var id=a.get_instance_id()
 		var cooldown=max(0,service_cooldowns.get(id,0.0)-dt);service_cooldowns[id]=cooldown
 		var base=game.service_bases.at_position(a.translation)
-		var eligible=base!=null and base.team==a.team and a.landing.grounded and a.linear_velocity.length()<2.0
+		var eligible=base!=null and base.team==a.team and base.operational and a.landing.grounded and a.linear_velocity.length()<2.0
 		eligible=eligible and not a.shoot and a.throttle<.15 and clock-a.last_damage_time>1 and cooldown<=0
 		if eligible:
 			service_progress[id]=service_progress.get(id,0.0)+dt
