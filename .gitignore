@@ -1,3 +1,7 @@
 copyai/
 Game/Game.exe
 Game/Game.pck
+
+# Godot 3 generated import cache: binary artifacts rebuilt by the CI import
+# step. The *.import sidecar metadata next to each asset IS tracked.
+Game/Source/.import/
