@@ -27,7 +27,7 @@ func build(owner):
 	var low=CylinderMesh.new();low.bottom_radius=3.6;low.top_radius=.1;low.height=15;low.radial_segments=6;low.rings=1
 	var lm=SpatialMaterial.new();lm.albedo_color=Color(.13,.23,.12);low.material=lm
 	var rng=RandomNumberGenerator.new();rng.seed=91724
-	for x in range(-5,6):
+	for x in range(-8,9):
 		for z in range(-5,6):
 			var node=Spatial.new();node.translation=Vector3(x*1200,0,z*1200);add_child(node)
 			var hi=MultiMesh.new();hi.transform_format=MultiMesh.TRANSFORM_3D;hi.mesh=tree;hi.instance_count=40
