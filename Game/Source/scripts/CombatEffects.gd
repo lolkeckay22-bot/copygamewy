@@ -68,7 +68,7 @@ func _process(dt):
 			var age=1.0-p.life/p.max
 			var size=p.size*(1+age*(.2 if p.glow else 3.0))
 			var color=p.color
-			color.a=clamp(p.life/p.max,0,1)*(.9 if p.glow else .22)
+			color.a=clamp(p.life/p.max,0,1)*(.9 if p.glow else .42)
 			var corners=[p.p-right*size-up*size,p.p+right*size-up*size,p.p+right*size+up*size,p.p-right*size+up*size]
 			renderer.set_color(color)
 			for i in [0,1,2,0,2,3]:
