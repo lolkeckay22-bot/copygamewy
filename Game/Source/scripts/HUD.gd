@@ -158,7 +158,7 @@ func draw_flight():
 		txt(Vector2(30,65),"%d FPS  |  %s"%[Engine.get_frames_per_second(),["LOW","MEDIUM","HIGH"][game.graphics.preset]],12,amber)
 	else:
 		txt(Vector2(30,65),"%s"%[["LOW","MEDIUM","HIGH"][game.graphics.preset]],12,muted)
-	txt(Vector2(30,695),"W/S THRUST   A/D ROLL   Q/E RUDDER   SPACE FIRE   C LOOK   ESC MENU",12,ink)
+	txt(Vector2(30,695),"W/S THRUST   UP/DOWN PITCH   A/D ROLL   Q/E RUDDER   SPACE FIRE   ESC MENU",12,ink)
 	txt(Vector2(1040,695),"SKY FRONT / "+("FREE FLIGHT" if game.mode=="freeflight" else "AIR BATTLE"),12,muted)
 	var y2=496
 	panel(Rect2(1060,463,190,201),Color(.025,.045,.06,.75))
