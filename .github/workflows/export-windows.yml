@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   export-windows:
@@ -200,6 +200,17 @@ jobs:
           grep -q 'MANEUVER PASS' "$RUNNER_TEMP/maneuver.log"
           grep -q 'SPEED PASS' "$RUNNER_TEMP/maneuver.log"
 
+      - name: Profile pools and repeated respawns
+        run: |
+          set -euo pipefail
+          cd Game/Source
+          BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
+          export GODOT_SILENCE_ROOT_WARNING=1
+          timeout 180 "$BIN" --headless --performance-test --video-driver Dummy --audio-driver Dummy \
+            > "$RUNNER_TEMP/performance.log" 2>&1 || { tail -100 "$RUNNER_TEMP/performance.log"; exit 1; }
+          grep 'PERF ' "$RUNNER_TEMP/performance.log"
+          grep -q 'PERF failures=0' "$RUNNER_TEMP/performance.log"
+
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
@@ -209,19 +220,3 @@ jobs:
             Game/Skyfront.pck
           if-no-files-found: error
 
-      # Only meaningful on a direct push to main. A pull_request checkout is a
-      # detached merge ref that must not be pushed to, and the GITHUB_TOKEN may
-      # not have write access, so this is skipped for PR builds.
-      - name: Commit build to repository
-        if: github.event_name == 'push'
-        run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Game/Skyfront.exe Game/Skyfront.pck
-          if git diff --cached --quiet; then
-            echo "build unchanged; nothing to commit"
-            exit 0
-          fi
-          git commit -m "build: Windows export of Skyfront ($(git rev-parse --short HEAD))"
-          git push
