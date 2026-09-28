@@ -30,10 +30,12 @@ func step(a,state,dt):
 	var pitch=asin(clamp(-basis.z.y,-1,1))
 	if not grounded:
 		touchdown_speed=abs(v.y)
-		if v.y < -6.0 or roll>deg2rad(18) or pitch<deg2rad(-10) or pitch>deg2rad(20) or v.length()>150:
+		var approach_speed=Vector2(v.x,v.z).length()
+		var limit=120.0 if a.data.id=="su27" else 45.0
+		if v.y < -10.0 or roll>deg2rad(28) or pitch<deg2rad(-15) or pitch>deg2rad(25) or approach_speed>limit:
 			crash(a);return
-		if v.y < -3.5:
-			a.damage.apply("fuselage",(abs(v.y)-3.5)*8,a.data)
+		if v.y < -4.5:
+			a.damage.apply("fuselage",(abs(v.y)-4.5)*5,a.data)
 		if a.player:
 			a.game.notification="TOUCHDOWN — HOLD B TO BRAKE";a.game.notification_time=3
 	grounded=true
