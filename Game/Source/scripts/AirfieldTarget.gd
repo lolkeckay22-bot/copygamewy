@@ -39,8 +39,12 @@ func setup(owner,owner_field,type,position):
 		builder.box(Vector3(0,30,0),Vector3(22,1,22),Color(.55,.55,.51))
 	else:
 		builder.box(Vector3(0,.06,0),Vector3(78,.12,440),Color(.24,.25,.25))
-	model.mesh=builder.finish_mesh().mesh
+	var result=builder.finish_mesh()
+	model.mesh=result.mesh
+	result.free()
 	builder.free()
+func aim_point():
+	return translation+Vector3.UP*(0.5 if kind=="runway" else (23.0 if kind=="tower" else 12.0))
 func take_hit(point,amount,_attacker):
 	if dead:return
 	hp=max(0.0,hp-amount)
