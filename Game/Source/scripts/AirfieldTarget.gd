@@ -7,7 +7,7 @@ var dead=false
 var hp=220.0
 var hit_radius=24.0
 var linear_velocity=Vector3.ZERO
-var data={"name":"HANGAR","hp":220.0,"span":40.0,"length":58.0,"damage":0.0}
+var data={"name":"АНГАР","hp":220.0,"span":40.0,"length":58.0,"damage":0.0}
 var kind="hangar"
 var model
 func setup(owner,owner_field,type,position):
@@ -19,11 +19,11 @@ func setup(owner,owner_field,type,position):
 	if kind=="runway":
 		hp=300.0
 		hit_radius=58.0
-		data={"name":"RUNWAY SECTION","hp":300.0,"span":85.0,"length":440.0,"damage":0.0}
+		data={"name":"УЧАСТОК ВПП","hp":300.0,"span":85.0,"length":440.0,"damage":0.0}
 	elif kind=="tower":
 		hp=180.0
 		hit_radius=18.0
-		data={"name":"CONTROL TOWER","hp":180.0,"span":20.0,"length":20.0,"damage":0.0}
+		data={"name":"ДИСПЕТЧЕРСКАЯ","hp":180.0,"span":20.0,"length":20.0,"damage":0.0}
 	model=MeshInstance.new()
 	add_child(model)
 	var builder=preload("res://scripts/AircraftModel.gd").new()
@@ -54,7 +54,7 @@ func take_hit(point,amount,_attacker):
 	if kind=="runway":
 		field.operational=false
 		if game.player!=null and game.player.team==team:
-			game.notification="RUNWAY DESTROYED — SERVICE UNAVAILABLE"
+			game.notification="ВПП РАЗРУШЕНА — РЕМОНТ НЕДОСТУПЕН"
 			game.notification_time=5
 	var material=SpatialMaterial.new()
 	material.albedo_color=Color(.10,.10,.09) if kind=="runway" else Color(.16,.13,.10)
