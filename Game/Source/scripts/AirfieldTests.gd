@@ -16,6 +16,14 @@ func _process(_dt):
 	check(game.service_bases.targets.size()==18,"hangars tower and runway segments exist at both bases")
 	check(game.service_bases.at_position(Vector3(160,base.y,base.z+600))==base,"parallel taxiway accepts gear contact")
 	check(game.service_bases.at_position(Vector3(245,base.y,base.z+100))==base,"apron accepts gear contact")
+	check(a.model.gear_pivots.size()==3 and a.model.flap_pivots.size()==2,"Su-27 has three movable gear assemblies and two visible flaps")
+	a.model.set_lod(2500,game.graphics.draw_distance)
+	a.landing.toggle(a)
+	a.model.set_gear(a.landing.gear_down)
+	a.model.set_flaps(2)
+	a.model._process(1.0)
+	check(a.model.simple.visible and a.model.gear_pivots[0].pivot.visible and a.model.gear_progress>0.5,"landing gear extends at low graphics quality and distant LOD")
+	check(a.model.flap_pivots[0].rotation.x>0.4,"landing flaps rotate visibly")
 	var hangar=null
 	var runway=null
 	for target in game.service_bases.targets:
