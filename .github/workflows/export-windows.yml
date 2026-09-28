@@ -211,6 +211,17 @@ jobs:
           grep 'PERF ' "$RUNNER_TEMP/performance.log"
           grep -q 'PERF failures=0' "$RUNNER_TEMP/performance.log"
 
+      - name: Verify free flight and airfield destruction
+        run: |
+          set -euo pipefail
+          cd Game/Source
+          BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
+          export GODOT_SILENCE_ROOT_WARNING=1
+          timeout 120 "$BIN" --headless --airfield-test --video-driver Dummy --audio-driver Dummy \
+            > "$RUNNER_TEMP/airfield.log" 2>&1 || { tail -100 "$RUNNER_TEMP/airfield.log"; exit 1; }
+          grep 'AIRFIELD ' "$RUNNER_TEMP/airfield.log"
+          grep -q 'AIRFIELD failures=0' "$RUNNER_TEMP/airfield.log"
+
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
