@@ -287,6 +287,7 @@ func _process(dt):
 		player.airbrake=Input.is_action_pressed("airbrake")
 		player.landing.brake=player.airbrake
 		player.throttle=clamp(player.throttle+(Input.get_action_strength("throttle_up")-Input.get_action_strength("throttle_down"))*dt*.35,0,1)
+		player.manual_pitch=Input.get_action_strength("pitch_up")-Input.get_action_strength("pitch_down")
 		player.manual_roll=Input.get_action_strength("roll_right")-Input.get_action_strength("roll_left")
 		player.manual_yaw=Input.get_action_strength("rudder_left")-Input.get_action_strength("rudder_right")
 		player.shoot=Input.is_action_pressed("fire") or Input.is_mouse_button_pressed(BUTTON_LEFT)
