@@ -101,6 +101,7 @@ func _physics_process(dt):
 		var dist = translation.distance_to(game.camera.translation)
 		model.set_lod(dist,game.graphics.draw_distance)
 	model.set_gear(landing.gear_down)
+	model.set_flaps(flight_controls.flaps)
 	vapor_clock-=dt
 	if vapor_clock<=0:
 		vapor_clock=0.05
