@@ -44,11 +44,11 @@ func update_stores(a,dt):
 	missile_cooldown=max(0,missile_cooldown-dt);flare_cooldown=max(0,flare_cooldown-dt)
 	smoke_clock-=dt
 	if smoke_clock<=0:
-		smoke_clock=[.13,.07,.035][a.game.graphics.effects]
+		smoke_clock=[.09,.055,.035][a.game.graphics.effects]
 		if smoke:
 			for x in [-a.data.span*.4,a.data.span*.4]:
 				var p=a.translation+a.global_transform.basis.x*x+a.global_transform.basis.z*2
-				a.game.effects.emit(p,Vector3.UP*.5,a.game.effects.colors[smoke_color],1.1,6.0)
+				a.game.effects.emit(p,Vector3.UP*.35,a.game.effects.colors[smoke_color],1.85,7.5)
 		if a.damage.zones.engine<.5:a.game.effects.emit(a.translation,Vector3.UP*2,Color(.12,.13,.14),1.5,3)
 		if a.data.id=="su27" and a.throttle>.93:
 			for x in [-1.35,1.35]:a.game.effects.emit(a.translation+a.global_transform.basis.x*x+a.global_transform.basis.z*9,Vector3.ZERO,Color(.4,.58,1),.5,.1,true)
@@ -57,9 +57,10 @@ func update_stores(a,dt):
 	if a.data.id!="su27":return
 	if not a.player and missile_stock[missile_type]<=0 and missile_count>0:cycle_missile()
 	var candidate=a.ai.target if not a.player else lock_target
-	if candidate==null or not is_instance_valid(candidate) or candidate.dead:
+	if a.player and a.game.combat.valid(a.game.combat.selected_target):
+		candidate=a.game.combat.selected_target
+	elif candidate==null or not is_instance_valid(candidate) or candidate.dead:
 		candidate=a.game.targeting.nearest(a,a.game.aircraft)
-		if a.player and a.game.combat.valid(a.game.combat.selected_target) and a.game.ground_units.has(a.game.combat.selected_target):candidate=null
 	if candidate!=lock_target:
 		lock_target=candidate
 		lock_progress=0
@@ -71,8 +72,10 @@ func update_stores(a,dt):
 		var distance=a.translation.distance_to(lock_target.translation)
 		if distance>[800,550,400][a.ai.skill]:fire_missile(a)
 func fire_missile(a):
-	if a.data.id!="su27" or lock_progress<1 or missile_cooldown>0 or missile_stock[missile_type]<=0:return false
-	if a.game.missiles.launch(a,lock_target,missile_type):
+	if a.data.id!="su27" or missile_cooldown>0 or missile_stock[missile_type]<=0:return false
+	if lock_progress<1 and a.game.mode!="freeflight":return false
+	var target=lock_target if lock_progress>=1 else null
+	if a.game.missiles.launch(a,target,missile_type):
 		a.spawn_protection=0
 		missile_stock[missile_type]-=1;missile_count-=1;missile_cooldown=2.0 if a.player else [13,9,6][a.ai.skill]
 		a.model.update_stores(missile_stock)
