@@ -290,7 +290,7 @@ func _process(dt):
 		player.manual_roll=Input.get_action_strength("roll_right")-Input.get_action_strength("roll_left")
 		player.manual_yaw=Input.get_action_strength("rudder_left")-Input.get_action_strength("rudder_right")
 		player.shoot=Input.is_action_pressed("fire") or Input.is_mouse_button_pressed(BUTTON_LEFT)
-		if Vector2(player.translation.x,player.translation.z).length()>7100:
+		if mode=="battle" and Vector2(player.translation.x,player.translation.z).length()>7100:
 			var home=(Vector3(0,max(player.translation.y,1100),0)-player.translation).normalized()
 			player.direction=home
 			controller.yaw=atan2(-home.x,-home.z)
