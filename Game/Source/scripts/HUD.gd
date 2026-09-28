@@ -235,7 +235,7 @@ func draw_settings():
 	button(Rect2(347,109,260,45),"УПРАВЛЕНИЕ","controls_tab",settings_tab==1)
 	if settings_tab==0:
 		var g=game.graphics
-		var rows=[["Качество",["LOW / HD 7640G","СРЕДНЕ","ВЫСОКО"][g.preset],"preset"],["Разрешение","%d × %d"%[g.resolution.x,g.resolution.y],"resolution"],["Масштаб рендера","%d %%"%int(g.render_scale*100),"scale"],["Тени","ВКЛ" if g.shadows else "ВЫКЛ","shadows"],["Текстуры",["НИЗКО","СРЕДНЕ","ВЫСОКО"][g.texture_quality],"textures"],["Дальность прорисовки","%d m"%int(g.draw_distance),"distance"],["Эффекты",["НИЗКО","СРЕДНЕ","ВЫСОКО"][g.effects],"effects"],["Сглаживание",["ВЫКЛ","2× MSAA","4× MSAA"][g.aa],"aa"],["VSync","ВКЛ" if g.vsync else "ВЫКЛ","vsync"],["Лимит FPS",str(g.fps_limit) if g.fps_limit>0 else "БЕЗ ЛИМИТА","fps"]]
+		var rows=[["Качество",["НИЗКО / HD 7640G","СРЕДНЕ","ВЫСОКО"][g.preset],"preset"],["Разрешение","%d × %d"%[g.resolution.x,g.resolution.y],"resolution"],["Масштаб рендера","%d %%"%int(g.render_scale*100),"scale"],["Тени","ВКЛ" if g.shadows else "ВЫКЛ","shadows"],["Текстуры",["НИЗКО","СРЕДНЕ","ВЫСОКО"][g.texture_quality],"textures"],["Дальность прорисовки","%d м"%int(g.draw_distance),"distance"],["Эффекты",["НИЗКО","СРЕДНЕ","ВЫСОКО"][g.effects],"effects"],["Сглаживание",["ВЫКЛ","2× MSAA","4× MSAA"][g.aa],"aa"],["VSync","ВКЛ" if g.vsync else "ВЫКЛ","vsync"],["Лимит FPS",str(g.fps_limit) if g.fps_limit>0 else "БЕЗ ЛИМИТА","fps"]]
 		for i in range(rows.size()):
 			var x=70+(i/5)*600;var y=186+(i%5)*79
 			txt(Vector2(x,y+18),rows[i][0],16,muted)
