@@ -77,6 +77,8 @@ func _ready():
 		test_runner=preload("res://scripts/ComfortTests.gd").new();test_runner.game=self;add_child(test_runner)
 	if "--maneuver-test" in OS.get_cmdline_args():
 		test_runner=preload("res://scripts/ManeuverTests.gd").new();test_runner.game=self;add_child(test_runner)
+	if "--airfield-test" in OS.get_cmdline_args():
+		test_runner=preload("res://scripts/AirfieldTests.gd").new();test_runner.game=self;add_child(test_runner)
 	if "--landing-test" in OS.get_cmdline_args():
 		test_runner=preload("res://scripts/LandingTests.gd").new();test_runner.game=self;add_child(test_runner)
 	if "--gameplay-test" in OS.get_cmdline_args():
