@@ -107,7 +107,7 @@ func draw_hangar():
 	draw_rect(Rect2(38,165,305,3),amber)
 	txt(Vector2(60,208),d.name,26)
 	txt(Vector2(60,237),"AIRCRAFT SPECIFICATION",12,muted)
-	var specs=[["TOP SPEED",str(int(d.max_speed*3.6))+" km/h"],["MASS",str(int(d.mass))+" kg"],["G LIMIT",str(int(d.max_g))+" G"],["AMMUNITION",str(int(d.ammo))+" rounds"],["ARMAMENT","30 mm cannon" if game.selected==1 else "Twin machine guns"]]
+	var specs=[["TOP @ ALT",str(int(d.max_speed*3.6))+" km/h"],["MASS",str(int(d.mass))+" kg"],["G LIMIT",str(int(d.max_g))+" G"],["AMMUNITION",str(int(d.ammo))+" rounds"],["ARMAMENT","30 mm cannon" if game.selected==1 else "Twin machine guns"]]
 	var y=272
 	for row in specs:
 		txt(Vector2(60,y),row[0],12,muted);txt(Vector2(191,y),row[1],14);y+=35
