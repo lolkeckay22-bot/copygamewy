@@ -24,6 +24,19 @@ func _process(_dt):
 	a.model._process(1.0)
 	check(a.model.simple.visible and a.model.gear_pivots[0].pivot.visible and a.model.gear_progress>0.5,"landing gear extends at low graphics quality and distant LOD")
 	check(a.model.flap_pivots[0].rotation.x>0.4,"landing flaps rotate visibly")
+	var motion=InputEventMouseMotion.new()
+	motion.relative=Vector2(0,-30)
+	var old_pitch=game.controller.pitch
+	game.controller.mouse(motion,false,false,1.0,false)
+	check(game.controller.pitch>old_pitch,"mouse up aims camera upward without inversion")
+	game.controller.pitch=1.3
+	game.controller.free_pitch=1.1
+	Input.action_press("free_look")
+	game.controller.update(game.camera,a,.1,false)
+	Input.action_release("free_look")
+	check(game.camera.global_transform.basis.y.dot(Vector3.UP)>0.05,"camera remains upright at steep view angles")
+	game.controller.reset(a)
+	game.controller.free_pitch=0.0
 	var hangar=null
 	var runway=null
 	for target in game.service_bases.targets:
