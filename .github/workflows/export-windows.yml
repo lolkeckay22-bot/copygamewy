@@ -13,6 +13,10 @@ on:
       - ".github/workflows/export-windows.yml"
   workflow_dispatch:
 
+concurrency:
+  group: skyfront-windows-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
