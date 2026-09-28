@@ -37,7 +37,7 @@ func step(a,state,dt):
 		if v.y < -4.5:
 			a.damage.apply("fuselage",(abs(v.y)-4.5)*5,a.data)
 		if a.player:
-			a.game.notification="TOUCHDOWN — HOLD B TO BRAKE";a.game.notification_time=3
+			a.game.notification="ПОСАДКА — УДЕРЖИВАЙТЕ B ДЛЯ ТОРМОЖЕНИЯ";a.game.notification_time=3
 	grounded=true
 	# Contact constraint corrects penetration; propulsion/lift remain force-integrated.
 	var transform=state.transform
