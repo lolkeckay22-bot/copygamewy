@@ -17,6 +17,7 @@ var ai = preload("res://scripts/AircraftAI.gd").new()
 var weapons = preload("res://scripts/AircraftWeapons.gd").new()
 var model
 var direction = Vector3.FORWARD
+var manual_pitch = 0.0
 var manual_roll = 0.0
 var manual_yaw = 0.0
 var shoot = false
@@ -73,7 +74,7 @@ func _integrate_forces(state):
 	physics_accumulator=0.0
 	if dt>0.05:
 		dt=0.05
-	var control = instructor.command(self,direction,manual_roll,manual_yaw)
+	var control = instructor.command(self,direction,manual_roll,manual_yaw,manual_pitch)
 	flight.step(self,state,control,dt)
 	landing.step(self,state,dt)
 func _physics_process(dt):
@@ -88,7 +89,7 @@ func _physics_process(dt):
 		return
 	flight_controls.update(self)
 	weapons.update(self,dt,shoot)
-	if not landing.grounded and translation.y < game.terrain.height_at(translation.x,translation.z) + .3:
+	if not landing.grounded and translation.y < game.terrain.height_at(translation.x,translation.z) - 1.0:
 		game.ground_losses+=1
 		die()
 		return
