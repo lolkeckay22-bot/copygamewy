@@ -48,7 +48,14 @@ func update(camera,a,dt,in_hangar):
 	var target=a.translation+Vector3.UP*3
 	var desired=target-view*distance
 	camera.translation=camera.translation.linear_interpolate(desired,clamp(dt*12,0,1))
-	camera.look_at(target+view*150,Vector3.UP)
+	# Preserve camera roll through vertical sight lines. A fixed world-up vector
+	# becomes parallel to the view at 90 degrees and makes look_at flip.
+	var right=camera.global_transform.basis.x
+	right=(right-view*right.dot(view)).normalized()
+	if right.length_squared()<0.01:
+		right=Vector3.FORWARD.cross(view).normalized()
+	var up=right.cross(view).normalized()
+	camera.look_at(target+view*150,up)
 	shake=max(0,shake-dt)
 	if shake>0:camera.translation+=camera.global_transform.basis.x*rand_range(-shake,shake)
 
