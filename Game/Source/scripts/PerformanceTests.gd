@@ -5,6 +5,10 @@ var failures=0
 func check(ok,label):
 	print("PERF ","PASS " if ok else "FAIL ",label)
 	if not ok:failures+=1
+func count_nodes(root):
+	var total=1
+	for child in root.get_children():total+=count_nodes(child)
+	return total
 func fill(pool):
 	for s in pool.slots:
 		s.life=3.0;s.p=Vector3(5000,4000,5000);s.v=Vector3(0,0,-800);s.owner=game.player
@@ -41,5 +45,20 @@ func _process(_dt):
 	game.graphics.set_preset(2);game.graphics.apply(game)
 	check(game.terrain.ground_mesh.material_override==game.terrain.high_material,"HIGH terrain material retained")
 	game.graphics.set_preset(0);game.graphics.apply(game)
+	var effects=game.effects
+	effects.clear()
+	var idle_start=OS.get_ticks_usec()
+	for i in range(1000):effects._process(1.0/60.0)
+	print("PERF idle effect workload us=",OS.get_ticks_usec()-idle_start)
+	effects.emit(game.player.translation,Vector3.ZERO,Color.white,1,0.1)
+	check(effects.active.size()==1,"effect pool tracks live particles")
+	for i in range(8):effects._process(1.0/60.0)
+	check(effects.active.empty(),"expired effects leave the active set")
+	var nodes_before=count_nodes(game.world)
+	for i in range(6):
+		game.player.die()
+		game.respawn(game.player)
+	check(count_nodes(game.world)==nodes_before,"six player respawns do not add scene nodes")
+	check(game.aircraft.size()==12 and game.ground_units.size()==12,"respawns retain original combat population")
 	print("PERF failures=",failures)
 	get_tree().quit(1 if failures else 0)
