@@ -113,6 +113,39 @@ jobs:
           timeout 600 "$BIN" --headless --export "Windows Desktop" "$GITHUB_WORKSPACE/Game/Skyfront.exe"
           ls -lh "$GITHUB_WORKSPACE/Game/"
 
+      - name: Embed Skyfront icon into Windows executable
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wine64 python3-pefile
+          curl -fL --retry 3 -o "$RUNNER_TEMP/rcedit-x64.exe" \
+            "https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe"
+          export WINEDEBUG=-all
+          export WINEPREFIX="$RUNNER_TEMP/skyfront-wine"
+          wine "$RUNNER_TEMP/rcedit-x64.exe" \
+            "$(winepath -w "$GITHUB_WORKSPACE/Game/Skyfront.exe")" \
+            --set-icon "$(winepath -w "$GITHUB_WORKSPACE/Game/Source/icon.ico")"
+          python3 - <<'PY'
+          import struct
+          import pefile
+          from pathlib import Path
+          ico=Path("Game/Source/icon.ico").read_bytes()
+          exe=pefile.PE("Game/Skyfront.exe")
+          icons=[]
+          for kind in exe.DIRECTORY_ENTRY_RESOURCE.entries:
+              if kind.id!=3: continue  # RT_ICON
+              for entry in kind.directory.entries:
+                  for lang in entry.directory.entries:
+                      data=lang.data.struct
+                      icons.append(exe.get_data(data.OffsetToData,data.Size))
+          expected=[]
+          for i in range(struct.unpack_from("<H",ico,4)[0]):
+              size,offset=struct.unpack_from("<II",ico,6+16*i+8)
+              expected.append(ico[offset:offset+size])
+          assert expected and all(blob in icons for blob in expected), "Windows exe lacks the Skyfront icon images"
+          print("Skyfront icon embedded:",len(expected),"sizes")
+          PY
+
       - name: Verify export
         run: |
           set -euo pipefail
