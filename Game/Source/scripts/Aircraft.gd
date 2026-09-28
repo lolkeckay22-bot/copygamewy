@@ -93,7 +93,7 @@ func _physics_process(dt):
 		game.ground_losses+=1
 		die()
 		return
-	if game.mode=="battle" and (abs(translation.x)>8000 or abs(translation.z)>8000):
+	if game.mode=="battle" and (abs(translation.x)>12000 or abs(translation.z)>12000):
 		direction = (Vector3(0,900,0)-translation).normalized()
 	lod_clock-=dt
 	if lod_clock<=0:
