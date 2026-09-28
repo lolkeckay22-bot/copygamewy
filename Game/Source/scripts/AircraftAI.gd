@@ -39,7 +39,7 @@ func update(a, dt):
 		direction = Vector3(-a.global_transform.basis.z.x,-0.13,-a.global_transform.basis.z.z).normalized()
 		a.throttle = 1.0
 		state_name = "RECOVER ENERGY"
-	elif Vector2(a.translation.x,a.translation.z).length() > 6100:
+	elif Vector2(a.translation.x,a.translation.z).length() > 10500:
 		direction = (Vector3(0,900,0)-a.translation).normalized()
 		state_name = "RETURN"
 	elif target != null:
