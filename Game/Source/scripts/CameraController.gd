@@ -39,21 +39,25 @@ func update(camera,a,dt,in_hangar):
 	a.direction=aim
 	if not Input.is_action_pressed("free_look"):
 		free_yaw=lerp(free_yaw,0,1-exp(-dt*6));free_pitch=lerp(free_pitch,0,1-exp(-dt*6))
-	var view=Vector3(-sin(yaw+free_yaw)*cos(pitch+free_pitch),sin(pitch+free_pitch),-cos(yaw+free_yaw)*cos(pitch+free_pitch))
+	var view_pitch=clamp(pitch+free_pitch,-1.45,1.45)
+	var view=Vector3(-sin(yaw+free_yaw)*cos(view_pitch),sin(view_pitch),-cos(yaw+free_yaw)*cos(view_pitch))
 	var selected=a.game.combat.selected_target
 	tracking=Input.is_action_pressed("target_view") and a.game.combat.valid(selected)
 	if tracking:view=(selected.translation-a.translation).normalized()
 	zooming=Input.is_action_pressed("precision_zoom") and not a.dead
 	camera.fov=lerp(camera.fov,32.0 if zooming else 65.0,1-exp(-dt*10))
+	# Keep the horizon upright even when following an inverted aircraft or a target overhead.
+	var horizontal=Vector3(view.x,0,view.z)
+	if horizontal.length_squared()<0.0001:
+		horizontal=Vector3(-sin(yaw+free_yaw),0,-cos(yaw+free_yaw))
+	else:
+		horizontal=horizontal.normalized()
+	var vertical=clamp(view.y,-.995,.995)
+	view=Vector3(horizontal.x*sqrt(1.0-vertical*vertical),vertical,horizontal.z*sqrt(1.0-vertical*vertical))
 	var target=a.translation+Vector3.UP*3
 	var desired=target-view*distance
 	camera.translation=camera.translation.linear_interpolate(desired,clamp(dt*12,0,1))
-	# Preserve camera roll through vertical sight lines. A fixed world-up vector
-	# becomes parallel to the view at 90 degrees and makes look_at flip.
-	var right=camera.global_transform.basis.x
-	right=(right-view*right.dot(view)).normalized()
-	if right.length_squared()<0.01:
-		right=Vector3.FORWARD.cross(view).normalized()
+	var right=view.cross(Vector3.UP).normalized()
 	var up=right.cross(view).normalized()
 	camera.look_at(target+view*150,up)
 	shake=max(0,shake-dt)
