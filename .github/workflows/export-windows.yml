@@ -173,6 +173,21 @@ jobs:
           grep -q 'TEST FINISHED' "$RUNNER_TEMP/smoke.log" || { echo "::error::Smoke test did not finish"; exit 1; }
           echo "smoke test passed"
 
+      - name: Run landing cycle tests for both aircraft
+        run: |
+          set -euo pipefail
+          cd Game/Source
+          BIN="$HOME/godot/Godot_v3.5.3-stable_linux_headless.64"
+          export GODOT_SILENCE_ROOT_WARNING=1
+          for option in "" "--biplane"; do
+            timeout 240 "$BIN" --headless --landing-test $option --video-driver Dummy --audio-driver Dummy \
+              > "$RUNNER_TEMP/landing.log" 2>&1 || { tail -80 "$RUNNER_TEMP/landing.log"; exit 1; }
+            grep 'LANDING ' "$RUNNER_TEMP/landing.log" || true
+            if grep -q 'LANDING FAIL' "$RUNNER_TEMP/landing.log" || ! grep -q 'LANDING COMPLETE' "$RUNNER_TEMP/landing.log"; then
+              tail -80 "$RUNNER_TEMP/landing.log"; exit 1
+            fi
+          done
+
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
