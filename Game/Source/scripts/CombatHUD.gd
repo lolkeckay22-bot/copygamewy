@@ -9,7 +9,7 @@ func draw(h):
 	h.draw_arc(center,radius*.5,0,TAU,32,Color(.2,.3,.33),1,true)
 	h.draw_line(center-Vector2(radius,0),center+Vector2(radius,0),Color(.2,.3,.33),1)
 	h.draw_line(center-Vector2(0,radius),center+Vector2(0,radius),Color(.2,.3,.33),1)
-	h.txt(center+Vector2(-4,-radius-4),"N",12,h.ink)
+	h.txt(center+Vector2(-4,-radius-4),"С",12,h.ink)
 	for unit in game.aircraft+game.ground_units:
 		if unit==a or unit.dead:continue
 		var delta=unit.translation-a.translation;var offset=Vector2(delta.x,delta.z)/4000*radius
