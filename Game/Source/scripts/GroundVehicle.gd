@@ -57,9 +57,10 @@ func make_body(high):
 func _physics_process(dt):
 	if game==null or game.mode!="battle" or game.paused or dead:return
 	phase+=dt;plan_clock-=dt;fire_clock-=dt
-	body_high.visible=game.graphics.preset>0 and translation.distance_to(game.camera.translation)<1400
+	var camera_distance_sq=translation.distance_squared_to(game.camera.translation)
+	body_high.visible=game.graphics.preset>0 and camera_distance_sq<1960000.0
 	body_low.visible=not body_high.visible
-	visible=translation.distance_to(game.camera.translation)<game.graphics.draw_distance
+	visible=camera_distance_sq<game.graphics.draw_distance*game.graphics.draw_distance
 	if plan_clock<=0:
 		plan_clock=.25
 		target=game.targeting.nearest(self,game.aircraft)
