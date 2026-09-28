@@ -1,6 +1,7 @@
 extends Spatial
 var hangar = false
 var ground_mesh
+var outer_meshes=[]
 var low_material
 var high_material
 var base_levels=[]
@@ -12,14 +13,38 @@ func _init():
 func base_height(team):
 	return base_levels[team]
 func airfield_clear(x,z):
-	return abs(x)<300 and abs(abs(z)-4000)<1450
+	return abs(x)<450 and abs(abs(z)-4000)<1900
 func height_at(x,z):
 	var raw=raw_height(x,z)
 	if not airfield_clear(x,z):return raw
-	var flat=clamp((300.0-abs(x))/100.0,0,1)*clamp((1450.0-abs(abs(z)-4000))/200.0,0,1)
+	var flat=clamp((450.0-abs(x))/100.0,0,1)*clamp((1900.0-abs(abs(z)-4000))/200.0,0,1)
 	flat=flat*flat*(3-2*flat)
 	return lerp(raw,base_height(0 if z>0 else 1),flat)
 
+func build_outer_patch(x0,z0,nx,nz,step):
+	var st=SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.add_smooth_group(true)
+	for x in range(nx):
+		for z in range(nz):
+			var p=[]
+			for v in [Vector2(0,0),Vector2(1,0),Vector2(1,1),Vector2(0,1)]:
+				var px=x0+(x+v.x)*step
+				var pz=z0+(z+v.y)*step
+				p.append(Vector3(px,height_at(px,pz),pz))
+			var color=Color(.24,.37,.16).linear_interpolate(Color(.48,.48,.25),clamp((p[0].y+55)/190,0,1))
+			for i in [0,1,2,0,2,3]:
+				st.add_color(color)
+				st.add_uv(Vector2(p[i].x,p[i].z)*.035)
+				st.add_vertex(p[i])
+	st.index()
+	st.generate_normals()
+	st.generate_tangents()
+	st.set_material(low_material)
+	var mesh=MeshInstance.new()
+	mesh.mesh=st.commit()
+	add_child(mesh)
+	outer_meshes.append(mesh)
 func build():
 	var st=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES);st.add_smooth_group(true)
 	var n=150;var step=100.0
@@ -43,6 +68,13 @@ func build():
 	high_material.set_shader_param("grass_normal",load("res://assets/textures/grass_rock_normal.jpg"))
 	high_material.set_shader_param("forest_normal",load("res://assets/textures/ground_normal.jpg"))
 
+	# Four coarse outer strips extend the map to 24 km without multiplying
+	# central terrain geometry; separate meshes allow frustum culling.
+	build_outer_patch(-12000,7500,96,18,250)
+	build_outer_patch(-12000,-12000,96,18,250)
+	build_outer_patch(-12000,-7500,18,60,250)
+	build_outer_patch(7500,-7500,18,60,250)
+
 	# A single MultiMesh draw call for sparse low-poly scenery.
 	var mm=MultiMesh.new();mm.transform_format=MultiMesh.TRANSFORM_3D
 	var cube=CubeMesh.new();cube.size=Vector3(1,1,1)
@@ -58,3 +90,4 @@ func build():
 
 func set_quality(level):
 	ground_mesh.material_override=high_material if level>0 else low_material
+	for mesh in outer_meshes:mesh.material_override=high_material if level>0 else low_material
