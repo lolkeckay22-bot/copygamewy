@@ -1,8 +1,8 @@
 [
   {
     "id": "biplane",
-    "name": "B-2 FIELDLARK",
-    "subtitle": "LIGHT BIPLANE / TRAINING & COMBAT",
+    "name": "Б-2 Филдларк",
+    "subtitle": "ЛЁГКИЙ БИПЛАН / УЧЕБНЫЙ И БОЕВОЙ",
     "mass": 1150,
     "thrust": 4100,
     "area": 27,
@@ -27,7 +27,7 @@
     "hp": 105,
     "span": 10,
     "length": 8.2,
-    "description": "Light, forgiving and agile. Twin synchronized guns. Keep speed above 85 km/h.",
+    "description": "Лёгкий манёвренный биплан с двумя пулемётами. Держите скорость выше 85 км/ч.",
     "flap_limit": 55,
     "flap_lift": [
       0,
@@ -42,8 +42,8 @@
   },
   {
     "id": "su27",
-    "name": "SU-27",
-    "subtitle": "TWIN-ENGINE / AIR SUPERIORITY",
+    "name": "Су-27",
+    "subtitle": "ДВУХДВИГАТЕЛЬНЫЙ ИСТРЕБИТЕЛЬ",
     "mass": 17500,
     "thrust": 240000,
     "area": 62,
@@ -68,7 +68,7 @@
     "hp": 230,
     "span": 14.7,
     "length": 21.9,
-    "description": "Top speed is reached at altitude with afterburner. Up/Down control elevator; release Up before the nose passes vertical and use full throttle to recover.",
+    "description": "Максимальная скорость достигается на высоте с форсажем. Стрелки управляют тангажом; для выхода из кобры отпустите стрелку вверх и дайте полную тягу.",
     "flap_limit": 140,
     "flap_lift": [
       0,
