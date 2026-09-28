@@ -85,10 +85,10 @@ func step(body, state, control, dt):
 		cd += 0.022
 	cd += cl * cl * induced_k
 	if stall_amount > 0.0:
-		cd += 0.09 * stall_amount
+		cd += (0.055 if d.id=="su27" else 0.09) * stall_amount
 	# Transonic wave drag peak near Mach 1 (all aircraft, stronger for Su-27).
-	var wave_amp = 0.035 if d.id == "su27" else 0.022
-	cd += wave_amp * exp(-pow((mach - 1.0) / 0.23, 2))
+	var wave_amp = 0.012 if d.id == "su27" else 0.022
+	cd += wave_amp * exp(-pow((mach - 1.0) / 0.16, 2))
 	if body.airbrake:
 		cd += 0.045
 	var drag_mag = q * float(_param(d, "area", 30.0)) * cd
@@ -97,7 +97,7 @@ func step(body, state, control, dt):
 	# --- Thrust along nose, altitude lapse, afterburner for Su-27 ---
 	var ab = 1.0
 	if d.id == "su27" and body.throttle > 0.95:
-		ab = 1.12
+		ab = 1.25
 	var thrust_mag = float(_param(d, "thrust", 20000.0)) * body.throttle * ab * body.damage.zones.engine * sqrt(rho / 1.225)
 	var thrust = -basis.z * thrust_mag
 	# --- Side force: weathervane stability, damped at very high AoA ---
@@ -114,8 +114,8 @@ func step(body, state, control, dt):
 	var authority = clamp(q_norm, 0.15, 1.0)
 	# Su-27 keeps nose authority deep into post-stall with power on (no scripted cobra).
 	var cobra = d.id == "su27"
-	if cobra and abs_aoa > crit and body.throttle > 0.7 and speed > 55.0 and speed < 320.0:
-		authority = max(authority, 0.55)
+	if cobra and abs_aoa > crit and body.throttle > 0.7 and speed > 20.0 and speed < 320.0:
+		authority = max(authority, float(_param(d, "post_stall_control", 0.68)))
 	elif abs_aoa > crit + 0.35:
 		authority = max(authority, float(_param(d, "post_stall_control", 0.28)))
 	var g_rate = max_g * 9.81 / max(speed, 20.0)
