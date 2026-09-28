@@ -123,13 +123,18 @@ func step(body, state, control, dt):
 	var roll_rate = float(_param(d, "roll_rate", 1.4))
 	var yaw_rate = float(_param(d, "yaw_rate", 0.4))
 	var rates = Vector3(control.x * pitch_rate, control.y * pitch_rate, control.z * roll_rate)
-	# Structural G limiter (soft: allow brief post-stall overshoot for Herbst/cobra entry).
-	var yaw_limit = min(yaw_rate, 18.0 / max(speed, 20.0))
-	var allow = 1.35 if (cobra and stall_amount > 0.3) else 1.0
-	var steering_scale = min(1.0, min(min(pitch_rate, g_rate * allow) / max(abs(rates.x), 0.001), yaw_limit / max(abs(rates.y), 0.001)))
-	rates.x *= steering_scale
-	rates.y *= steering_scale
-	rates *= authority
+	# Limit each axis independently. The old shared scale used yaw's tiny
+	# high-speed limit to suppress elevator and aileron input as well.
+	var manual_elevator=body.player and abs(body.manual_pitch)>0.01
+	var pitch_limit=pitch_rate if manual_elevator else min(pitch_rate,g_rate)
+	# With direct elevator the pilot can briefly exceed the sustained G envelope;
+	# aerodynamic force and drag still determine the energy loss and stall.
+	rates.x=clamp(rates.x,-pitch_limit,pitch_limit)
+	rates.y=clamp(rates.y,-yaw_rate,yaw_rate)
+	rates.z=clamp(rates.z,-roll_rate,roll_rate)
+	rates.x*=authority
+	rates.y*=authority
+	rates.z*=authority
 	rates.x *= 0.25 + body.damage.zones.tail * 0.75
 	rates.y *= 0.2 + body.damage.zones.tail * 0.8
 	rates.z *= body.damage.lift_factor()
