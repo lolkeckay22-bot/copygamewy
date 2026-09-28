@@ -33,13 +33,14 @@ func draw(h):
 	var target=combat.selected_target
 	if combat.valid(target):
 		var distance=a.translation.distance_to(target.translation)
-		var hp=target.hp/target.data.hp if game.ground_units.has(target) else target.damage.health
+		var hp=target.hp/target.data.hp if game.ground_units.has(target) or game.service_bases.targets.has(target) else target.damage.health
 		h.panel(Rect2(432,570,420,70))
 		h.txt(Vector2(449,594),"TARGET: "+target.data.name,14,h.amber)
 		h.txt(Vector2(449,620),"%.2f KM   CONDITION %d%%   T AIR / H GROUND"%[distance/1000,int(hp*100)],12,h.ink)
-		var p=h.screen_point(target.translation)
-		if game.camera.is_position_behind(target.translation) or p.x<40 or p.x>1240 or p.y<115 or p.y>550:
-			var relative=game.camera.global_transform.basis.xform_inv(target.translation-game.camera.translation)
+		var target_pos=target.aim_point() if target.has_method("aim_point") else target.translation
+		var p=h.screen_point(target_pos)
+		if game.camera.is_position_behind(target_pos) or p.x<40 or p.x>1240 or p.y<115 or p.y>550:
+			var relative=game.camera.global_transform.basis.xform_inv(target_pos-game.camera.translation)
 			var toward=Vector2(relative.x,-relative.y).normalized()
 			if toward.length_squared()<.01:toward=Vector2.DOWN
 			p=Vector2(640,360)+toward*250
@@ -69,4 +70,4 @@ func draw(h):
 	if a.weapons.overheated:h.txt(Vector2(488,440),"CANNON HOT — COOLING",16,h.amber)
 	if game.mode=="results":return
 	if game.match_state.elapsed<15 and not a.dead:
-		h.txt(Vector2(387,665),"T: AIR TARGET   H: GROUND TARGET   BLUE CIRCLE: LAND / SERVICE",12,h.ink)
+		h.txt(Vector2(387,665),"T: AIR TARGET   H: GROUND / AIRFIELD   V: MISSILE   J: SMOKE",12,h.ink)
