@@ -145,7 +145,7 @@ func start_battle():
 	controller.reset(player)
 	camera.translation=player.translation+Vector3(0,5,controller.distance)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	notification="TEAM AIR BATTLE — FIRST TO 20";notification_time=5
+	notification="КОМАНДНЫЙ БОЙ — ДО 20 ОЧКОВ";notification_time=5
 	print("BATTLE START | aircraft=",aircraft.size()," selected=",selected)
 func start_freeflight():
 	combat.reset()
@@ -172,7 +172,7 @@ func start_freeflight():
 	controller.reset(player)
 	camera.translation=player.translation+Vector3(0,5,controller.distance)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	notification="FREE FLIGHT — NO ENEMIES, LAND ON RUNWAY TO REPAIR";notification_time=6
+	notification="СВОБОДНЫЙ ПОЛЁТ — СЯДЬТЕ НА ВПП ДЛЯ РЕМОНТА";notification_time=6
 	print("FREEFLIGHT START | selected=",selected)
 func spawn_at_freeflight(a):
 	var speed=175.0 if a.data.id=="su27" else 47.0
@@ -300,7 +300,7 @@ func _process(dt):
 			player.direction=home
 			controller.yaw=atan2(-home.x,-home.z)
 			controller.pitch=asin(home.y)
-			notification="MISSION BOUNDARY — RETURNING";notification_time=1
+			notification="ГРАНИЦА КАРТЫ — ВОЗВРАЩЕНИЕ";notification_time=1
 	for e in explosions:
 		if e.life<0:continue
 		e.life+=dt;e.node.scale=Vector3.ONE*(3+e.life*12)
