@@ -26,7 +26,7 @@ func select_target(ground=false):
 		if valid(t) and (t.team!=a.team or game.mode=="freeflight" and ground):candidates.append(t)
 	if candidates.empty():
 		selected_target=null
-		game.notification="NO GROUND TARGETS" if ground else "NO AIR TARGETS"
+		game.notification="НАЗЕМНЫХ ЦЕЛЕЙ НЕТ" if ground else "ВОЗДУШНЫХ ЦЕЛЕЙ НЕТ"
 		game.notification_time=2
 		return
 	if candidates.has(selected_target):
@@ -61,10 +61,10 @@ func destroyed(victim,attacker,ground=false):
 		if is_instance_valid(h.attacker) and h.attacker!=killer and clock-h.time<12:stats(h.attacker).assists+=1
 	recent_hits.erase(id)
 	var who="YOU" if killer==game.player else ("BLUE" if victim.team==1 else "RED")
-	feed.push_front({"text":who+" > "+victim.data.name if killer!=null else victim.data.name+" LOST","time":clock,"team":1-victim.team})
+	feed.push_front({"text":who+" > "+victim.data.name if killer!=null else victim.data.name+" УНИЧТОЖЕН","time":clock,"team":1-victim.team})
 	if feed.size()>4:feed.pop_back()
 	if killer==game.player:
-		game.notification="GROUND TARGET DESTROYED +1" if ground else "AIR TARGET DESTROYED +1"
+		game.notification="НАЗЕМНАЯ ЦЕЛЬ УНИЧТОЖЕНА +1" if ground else "ВОЗДУШНАЯ ЦЕЛЬ УНИЧТОЖЕНА +1"
 		game.notification_time=3
 func home(a):
 	return game.service_bases.center(a.team)
@@ -93,7 +93,7 @@ func update(dt):
 					a.model.reset_damage_visual()
 				service_progress[id]=0;service_cooldowns[id]=5;stats(a).services+=1
 				if a==game.player:
-					game.notification="SERVICE COMPLETE — REPAIRED / REARMED";game.notification_time=4
+					game.notification="ОБСЛУЖИВАНИЕ ЗАВЕРШЕНО — РЕМОНТ И БОЕЗАПАС";game.notification_time=4
 		else:service_progress[id]=0
 func on_respawn(a):
 	recent_hits.erase(a.get_instance_id());service_progress[a.get_instance_id()]=0
