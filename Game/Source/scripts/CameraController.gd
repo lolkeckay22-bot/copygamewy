@@ -32,7 +32,7 @@ func update(camera,a,dt,in_hangar):
 		camera.fov=65;tracking=false;zooming=false
 		var target=Vector3(0,2,0)
 		var pos=target+Vector3(sin(orbit_yaw)*cos(orbit_pitch),sin(orbit_pitch),cos(orbit_yaw)*cos(orbit_pitch))*distance
-		camera.translation=camera.translation.linear_interpolate(pos,clamp(dt*8,0,1))
+		camera.translation=camera.translation.linear_interpolate(pos,1-exp(-dt*8))
 		camera.look_at(target,Vector3.UP);return
 	if a==null:return
 	aim=Vector3(-sin(yaw)*cos(pitch),sin(pitch),-cos(yaw)*cos(pitch))
@@ -56,7 +56,7 @@ func update(camera,a,dt,in_hangar):
 	view=Vector3(horizontal.x*sqrt(1.0-vertical*vertical),vertical,horizontal.z*sqrt(1.0-vertical*vertical))
 	var target=a.translation+Vector3.UP*3
 	var desired=target-view*distance
-	camera.translation=camera.translation.linear_interpolate(desired,clamp(dt*12,0,1))
+	camera.translation=camera.translation.linear_interpolate(desired,1-exp(-dt*12))
 	var right=view.cross(Vector3.UP).normalized()
 	var up=right.cross(view).normalized()
 	camera.look_at(target+view*150,up)

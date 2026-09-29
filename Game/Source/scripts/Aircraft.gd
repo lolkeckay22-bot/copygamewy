@@ -42,7 +42,8 @@ func setup(database_entry, owner_game, faction, is_player):
 	weapons.ammo = int(data.ammo)
 	weapons.hardpoints.missiles=data.id=="su27"
 	model = preload("res://scripts/AircraftModel.gd").new()
-	model.build(data.id, team)
+	var camo_tex = "res://assets/textures/camo.png" if game.graphics.skin == "camo" else null
+	model.build(data.id, team, false, camo_tex)
 	model.set_quality(game.graphics.preset)
 	add_child(model)
 	ai.skill = game.difficulty

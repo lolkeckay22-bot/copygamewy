@@ -8,10 +8,11 @@ var aa=0
 var vsync=true
 var fps_limit=60
 var texture_quality=0
-var sensitivity=1.0
-var invert_y=false
-var show_fps=false
-var resolution=Vector2(1280,720)
+	var sensitivity=1.0
+	var invert_y=false
+	var show_fps=false
+	var resolution=Vector2(1280,720)
+	var skin="default"
 var keys={"throttle_up":KEY_W,"throttle_down":KEY_S,"pitch_up":KEY_UP,"pitch_down":KEY_DOWN,"roll_left":KEY_A,"roll_right":KEY_D,"rudder_left":KEY_Q,"rudder_right":KEY_E,"fire":KEY_SPACE,"free_look":KEY_C,"respawn":KEY_R,"missile":KEY_V,"cycle_missile":KEY_X,"target":KEY_T,"flare":KEY_F,"smoke":KEY_J,"smoke_color":KEY_K,"airbrake":KEY_B,"ground_target":KEY_H,"gear":KEY_G,"flaps":KEY_Z,"target_view":KEY_ALT}
 func _init():
 	set_preset(0)
@@ -19,7 +20,7 @@ func _init():
 	if cfg.load("user://settings.cfg")==OK:
 		preset=clamp(int(cfg.get_value("video","preset",0)),0,2)
 		set_preset(preset)
-		for property in ["render_scale","shadows","draw_distance","effects","aa","vsync","fps_limit","texture_quality","resolution"]:
+		for property in ["render_scale","shadows","draw_distance","effects","aa","vsync","fps_limit","texture_quality","resolution","skin"]:
 			set(property,cfg.get_value("video",property,get(property)))
 		render_scale=clamp(float(render_scale),0.5,1.0)
 		effects=clamp(int(effects),0,2)
@@ -68,13 +69,15 @@ func apply(game):
 	game.service_bases.set_quality(preset)
 	game.terrain.set_quality(min(preset,texture_quality));game.foliage.quality=preset
 	for a in game.aircraft:a.model.set_quality(preset)
+	for a in game.aircraft:a.model.set_skin(skin)
 	if game.hangar.model:game.hangar.model.set_quality(preset)
+	if game.hangar.model:game.hangar.model.set_skin(skin)
 	game.sun.directional_shadow_max_distance=[130,250,650][preset]
 	game.environment.ambient_light_energy=[.65,.55,.48][preset]
 	save()
 func save():
 	var cfg=ConfigFile.new()
-	for p in ["preset","render_scale","shadows","draw_distance","effects","aa","vsync","fps_limit","texture_quality","resolution"]:
+	for p in ["preset","render_scale","shadows","draw_distance","effects","aa","vsync","fps_limit","texture_quality","resolution","skin"]:
 		cfg.set_value("video",p,get(p))
 	for action in keys:cfg.set_value("keys",action,keys[action])
 	cfg.set_value("controls","sensitivity",sensitivity)

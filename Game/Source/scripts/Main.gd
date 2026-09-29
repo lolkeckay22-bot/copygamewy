@@ -93,7 +93,7 @@ func window_changed():
 	texture.rect_size=get_viewport().size;hud.rect_size=get_viewport().size
 	world_view.size=get_viewport().size*graphics.render_scale
 func select_aircraft(index):
-	selected=index;hangar.select_aircraft(database.get_aircraft(index));hangar.model.set_quality(graphics.preset);controller.distance=36 if index==1 else 22
+	selected=index;hangar.select_aircraft(database.get_aircraft(index), graphics.skin);hangar.model.set_quality(graphics.preset);controller.distance=36 if index==1 else 22
 func clear_transient_refs():
 	combat.reset()
 	missiles.clear()

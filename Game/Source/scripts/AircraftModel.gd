@@ -80,7 +80,7 @@ func add_flap(side,col):
 	var pivot=Spatial.new();pivot.translation=Vector3(0,.14,2.85);add_child(pivot)
 	foil([Vector3(side*2.55,0,0),Vector3(side*6.83,0,.13),Vector3(side*6.65,0,.91),Vector3(side*2.35,0,.42)],.06,col.darkened(.20))
 	pivot.add_child(finish_mesh());flap_pivots.append(pivot)
-func build(kind,team=0,gear=false):
+func build(kind,team=0,gear=false,camo_texture=null):
 	kind_id=kind
 	var col=Color(0.48,0.59,0.65) if team==0 else Color(0.57,0.51,0.43)
 	var dark=Color(0.12,0.17,0.19)
@@ -147,6 +147,8 @@ func build(kind,team=0,gear=false):
 	simple=finish_mesh();add_child(simple);simple.hide()
 	if kind=="su27":
 		high_model=MeshInstance.new();high_model.mesh=load("res://assets/models/su27"+("_gear" if gear else "")+".res");add_child(high_model);high_model.hide()
+		if camo_texture:
+			apply_camo(high_model, camo_texture)
 		if not gear:
 			for side in [-1,1]:add_flap(side,col)
 			add_gear(Vector3(0,-.55,-5.5),0,col,dark)
@@ -160,8 +162,30 @@ func build(kind,team=0,gear=false):
 		high_model=MeshInstance.new();high_model.mesh=detailed.mesh.duplicate(true)
 		var material=high_model.mesh.surface_get_material(0).duplicate();material.albedo_texture=load("res://assets/textures/fabric.png");material.uv1_triplanar=true;material.uv1_scale=Vector3.ONE*3;material.roughness=.8
 		high_model.mesh.surface_set_material(0,material);add_child(high_model);high_model.hide()
-	hangar_gear=gear
+hangar_gear=gear
 	build_vapor()
+	if camo_texture and kind_id=="su27" and high_model:
+		apply_camo(high_model, camo_texture)
+
+func apply_camo(model, texture_path):
+	if not texture_path:
+		if model.has_meta("original_materials"):
+			var mats = model.get_meta("original_materials")
+			for i in range(mats.size()):
+				model.mesh.surface_set_material(i, mats[i])
+			model.remove_meta("original_materials")
+		return
+	var tex = load(texture_path)
+	if tex:
+		var mats = []
+		for i in range(model.mesh.get_surface_count()):
+			var orig_mat = model.mesh.surface_get_material(i)
+			mats.append(orig_mat)
+			var mat = orig_mat.duplicate()
+			mat.albedo_texture = tex
+			model.mesh.surface_set_material(i, mat)
+		model.set_meta("original_materials", mats)
+
 func build_vapor():
 	if vapor_mesh!=null:
 		return
@@ -256,3 +280,9 @@ func _process(dt):
 			hinge.rotation.z=-part.side*(1.0-gear_progress)*1.35
 		for flap in flap_pivots:
 			flap.rotation.x=move_toward(flap.rotation.x,[0.0,.22,.48][flap_position],dt*.85)
+
+func set_skin(skin_name):
+	if kind_id != "su27" or not high_model:
+		return
+	var tex_path = "res://assets/textures/camo.png" if skin_name == "camo" else null
+	apply_camo(high_model, tex_path)
