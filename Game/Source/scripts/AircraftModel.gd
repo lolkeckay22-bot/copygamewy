@@ -162,10 +162,8 @@ func build(kind,team=0,gear=false,camo_texture=null):
 		high_model=MeshInstance.new();high_model.mesh=detailed.mesh.duplicate(true)
 		var material=high_model.mesh.surface_get_material(0).duplicate();material.albedo_texture=load("res://assets/textures/fabric.png");material.uv1_triplanar=true;material.uv1_scale=Vector3.ONE*3;material.roughness=.8
 		high_model.mesh.surface_set_material(0,material);add_child(high_model);high_model.hide()
-hangar_gear=gear
+	hangar_gear=gear
 	build_vapor()
-	if camo_texture and kind_id=="su27" and high_model:
-		apply_camo(high_model, camo_texture)
 
 func apply_camo(model, texture_path):
 	if not texture_path:
@@ -174,6 +172,8 @@ func apply_camo(model, texture_path):
 			for i in range(mats.size()):
 				model.mesh.surface_set_material(i, mats[i])
 			model.remove_meta("original_materials")
+		return
+	if model.has_meta("original_materials"):
 		return
 	var tex = load(texture_path)
 	if tex:
@@ -284,5 +284,5 @@ func _process(dt):
 func set_skin(skin_name):
 	if kind_id != "su27" or not high_model:
 		return
-	var tex_path = "res://assets/textures/camo.png" if skin_name == "camo" else null
+	var tex_path = "res://assets/textures/su27_uacamo.png" if skin_name == "ukrainian" or skin_name == "camo" else null
 	apply_camo(high_model, tex_path)

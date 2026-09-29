@@ -20,11 +20,11 @@ func build():
 		for z in [-18,-6,6,18]:
 			cube(Vector3(x,.04,z),Vector3(3,.08,.14),Color(.65,.71,.69))
 	for i in range(7):cube(Vector3(-19+i*.9,.5,18),Vector3(.7,1,.7),Color(.25,.29,.22))
-func select_aircraft(data, skin="default"):
+func select_aircraft(data, skin="ukrainian"):
 	if model!=null and is_instance_valid(model):
 		model.queue_free()
 		model=null
-	var camo_tex = "res://assets/textures/camo.png" if skin == "camo" else null
+	var camo_tex = "res://assets/textures/su27_uacamo.png" if skin == "ukrainian" or skin == "camo" else null
 	model=preload("res://scripts/AircraftModel.gd").new();model.build(data.id,0,true,camo_tex)
 	model.translation.y=2.0 if data.id=="su27" else 1.8
 	add_child(model)

@@ -85,6 +85,9 @@ func action(a):
 		elif a=="vsync":g.vsync=not g.vsync
 		elif a=="fps":
 			var opts=[0,30,60,120];g.fps_limit=opts[(opts.find(g.fps_limit)+1)%4]
+		elif a=="skin":g.skin="standard" if g.skin=="ukrainian" else "ukrainian"
+		elif a=="skin_standard":g.skin="standard"
+		elif a=="skin_ukrainian":g.skin="ukrainian"
 		g.apply(game)
 func _draw():
 	if game==null or fonts.empty():return
@@ -99,6 +102,9 @@ func draw_hangar():
 	panel(Rect2(0,0,1280,95),Color(.026,.046,.06,.94))
 	txt(Vector2(38,46),"СКАЙФРОНТ",38)
 	txt(Vector2(40,73),"ВОЗДУШНЫЕ БОИ  /  ВЕРСИЯ 0.6",12,muted)
+	txt(Vector2(330,53),"КАМУФЛЯЖ СУ-27:",14,muted)
+	button(Rect2(500,25,150,44),"СТАНДАРТ","skin_standard",game.graphics.skin=="standard")
+	button(Rect2(660,25,150,44),"УКРАИНА","skin_ukrainian",game.graphics.skin=="ukrainian")
 	button(Rect2(938,25,162,44),"НАСТРОЙКИ","settings")
 	button(Rect2(1115,25,125,44),"ВЫХОД","quit")
 	txt(Vector2(41,140),"АНГАР  /  2 САМОЛЁТА",14,muted)
@@ -242,6 +248,8 @@ func draw_settings():
 			button(Rect2(x+210,y-6,330,47),rows[i][1],rows[i][2])
 		txt(Vector2(70,600),"Показывать FPS",16,muted)
 		button(Rect2(280,576,330,47),"ВКЛ" if g.show_fps else "ВЫКЛ","show_fps",g.show_fps)
+		txt(Vector2(670,600),"Камуфляж Су-27",16,muted)
+		button(Rect2(880,576,330,47),"УКРАИНСКИЙ" if g.skin=="ukrainian" else "СТАНДАРТНЫЙ","skin",g.skin=="ukrainian")
 		txt(Vector2(70,642),"НИЗКО — для слабых видеокарт; ВЫСОКО требует более мощный ПК.",14,muted)
 		txt(Vector2(70,659),"Высокое качество: текстуры Су-27, растительность и техника. Низкое: упрощённые модели.",12,muted)
 		txt(Vector2(70,686),"Настройки сохраняются автоматически. Производительность зависит от вашего ПК.",12,amber)
